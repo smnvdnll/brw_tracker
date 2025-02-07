@@ -141,8 +141,8 @@ async def confirm_brw_tracker(callback: types.CallbackQuery, state: FSMContext, 
         await callback.answer(lxc.incorrect_departure_date, show_alert=True)
         return
     else:
-        now = datetime.now()
-        if date < now or date > now + timedelta(days=60):
+        now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        if date < now or date > now + timedelta(days=50):
             await callback.answer(lxc.incorrect_departure_date, show_alert=True)
             return
 
