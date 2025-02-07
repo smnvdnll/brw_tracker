@@ -1,0 +1,3 @@
+
+class TrainNotFoundException(Exception):
+    pass
