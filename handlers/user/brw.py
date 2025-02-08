@@ -75,8 +75,6 @@ async def add_brw_departure_station(callback: types.CallbackQuery, state: FSMCon
     await callback.answer()
 
 # кнопка Добавить станцию прибытия
-
-
 @user_router.callback_query(F.data == "add_brw_arrival_station_button", StateFilter(UserBrwStates.editing_brw_tracker))
 async def add_brw_arrival_station(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text(lxc.input_arrival_station, reply_markup=kb.make_back_button())
@@ -84,9 +82,8 @@ async def add_brw_arrival_station(callback: types.CallbackQuery, state: FSMConte
     await state.set_state(UserBrwFillingTrackerStates.adding_brw_arrival_station)
     await callback.answer()
 
+
 # кнопка Добавить дату отправления
-
-
 @user_router.callback_query(F.data == "add_brw_departure_date_button", StateFilter(UserBrwStates.editing_brw_tracker))
 async def add_brw_departure_date(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text(lxc.input_departure_date, reply_markup=kb.make_back_button())
@@ -94,14 +91,24 @@ async def add_brw_departure_date(callback: types.CallbackQuery, state: FSMContex
     await state.set_state(UserBrwFillingTrackerStates.adding_brw_departure_date)
     await callback.answer()
 
+
 # кнопка Добавить номер поезда
-
-
 @user_router.callback_query(F.data == "add_brw_train_number_button", StateFilter(UserBrwStates.editing_brw_tracker))
 async def add_brw_train_number(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text(lxc.input_train_number, reply_markup=kb.make_back_button())
     await state.update_data(previous_callback=callback)
     await state.set_state(UserBrwFillingTrackerStates.adding_brw_train_number)
+    await callback.answer()
+
+
+# кнопка свапа станций отправления и прибытия
+@user_router.callback_query(F.data == "swap_brw_stations_button", StateFilter(UserBrwStates.editing_brw_tracker))
+async def swap_brw_stations(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    await state.update_data(departure_station=data.get("arrival_station"), arrival_station=data.get("departure_station"))
+    await callback.message.edit_text(lxc.edit_tracker, reply_markup=kb.make_edit_brw_tracker_keyboard(await state.get_data()))
+    await state.update_data(previous_callback=callback)
+    await state.set_state(UserBrwStates.editing_brw_tracker)
     await callback.answer()
 
 
