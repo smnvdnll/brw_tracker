@@ -74,6 +74,7 @@ async def add_brw_departure_station(callback: types.CallbackQuery, state: FSMCon
     await state.set_state(UserBrwFillingTrackerStates.adding_brw_departure_station)
     await callback.answer()
 
+
 # кнопка Добавить станцию прибытия
 @user_router.callback_query(F.data == "add_brw_arrival_station_button", StateFilter(UserBrwStates.editing_brw_tracker))
 async def add_brw_arrival_station(callback: types.CallbackQuery, state: FSMContext):
@@ -154,6 +155,9 @@ async def confirm_brw_tracker(callback: types.CallbackQuery, state: FSMContext, 
         return
     if not is_station_exists(data.get("arrival_station")):
         await callback.answer(lxc.incorrect_arrival_station, show_alert=True)
+        return
+    if not data.get("train_number"):
+        await callback.answer(lxc.incorrect_train_number, show_alert=True)
         return
     try:
         date = datetime.strptime(data.get("departure_date"), "%Y-%m-%d")
