@@ -105,7 +105,20 @@ async def add_brw_train_number(callback: types.CallbackQuery, state: FSMContext)
 @user_router.callback_query(F.data == "swap_brw_stations_button", StateFilter(UserBrwStates.editing_brw_tracker))
 async def swap_brw_stations(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    await state.update_data(departure_station=data.get("arrival_station"), arrival_station=data.get("departure_station"))
+    dep_station = data.get("departure_station")
+    arr_station = data.get("arrival_station")
+
+    if dep_station and arr_station:
+        data["departure_station"] = arr_station
+        data["arrival_station"] = dep_station
+    elif dep_station and not arr_station:
+        data.pop("departure_station")
+        data["arrival_station"] = dep_station
+    elif not dep_station and arr_station:
+        data["departure_station"] = arr_station
+        data.pop("arrival_station") 
+    await state.set_data(data)
+            
     await callback.message.edit_text(lxc.edit_tracker, reply_markup=kb.make_edit_brw_tracker_keyboard(await state.get_data()))
     await state.update_data(previous_callback=callback)
     await state.set_state(UserBrwStates.editing_brw_tracker)
