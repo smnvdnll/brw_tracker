@@ -1,9 +1,11 @@
 import time
 
 from loguru import logger
+from functools import wraps
 
 
 def log_execution_time(func):
+    @wraps(func)
     async def wrapper(*args, **kwargs):
         start_time = time.perf_counter()
 
