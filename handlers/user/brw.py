@@ -109,7 +109,9 @@ async def swap_brw_stations(callback: types.CallbackQuery, state: FSMContext):
     dep_station = data.get("departure_station")
     arr_station = data.get("arrival_station")
 
-    if dep_station and arr_station:
+    if not dep_station and not arr_station:
+        return
+    elif dep_station and arr_station:
         data["departure_station"] = arr_station
         data["arrival_station"] = dep_station
     elif dep_station and not arr_station:
@@ -119,7 +121,7 @@ async def swap_brw_stations(callback: types.CallbackQuery, state: FSMContext):
         data["departure_station"] = arr_station
         data.pop("arrival_station") 
     await state.set_data(data)
-            
+
     await callback.message.edit_text(lxc.edit_tracker, reply_markup=kb.make_edit_brw_tracker_keyboard(await state.get_data()))
     await state.update_data(previous_callback=callback)
     await state.set_state(UserBrwStates.editing_brw_tracker)
@@ -159,6 +161,7 @@ async def confirm_brw_tracker(callback: types.CallbackQuery, state: FSMContext, 
     if not data.get("train_number"):
         await callback.answer(lxc.incorrect_train_number, show_alert=True)
         return
+
     try:
         date = datetime.strptime(data.get("departure_date"), "%Y-%m-%d")
     except Exception as e:
