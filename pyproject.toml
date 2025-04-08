@@ -1,0 +1,18 @@
+[project]
+name = "brw-tracker"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiogram==3.16.0",
+    "aiohttp==3.9.5",
+    "asyncio==3.4.3",
+    "asyncpg==0.30.0",
+    "backoff==2.2.1",
+    "datetime==5.5",
+    "greenlet>=3.1.1",
+    "loguru==0.7.2",
+    "python-dotenv==1.0.1",
+    "sqlalchemy==2.0.31",
+]
