@@ -41,7 +41,7 @@ def make_edit_brw_tracker_keyboard(user_data: dict):
         text=user_data.get("departure_station", "Откуда"),
         callback_data="add_brw_departure_station_button"
     ))
-    kb.add(InlineKeyboardButton(text="→", callback_data="nihuya"))
+    kb.add(InlineKeyboardButton(text="→", callback_data="swap_brw_stations_button"))
     kb.add(InlineKeyboardButton(
         text=user_data.get("arrival_station", "Куда"),
         callback_data="add_brw_arrival_station_button"
