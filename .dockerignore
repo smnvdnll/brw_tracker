@@ -1,0 +1,10 @@
+.venv/
+.vscode/
+
+.env
+
+*.pyc
+__pycache__/
+*.log
+
+README.md

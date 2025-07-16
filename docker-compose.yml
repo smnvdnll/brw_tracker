@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=brwtrackerdb
+  tg_bot:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - DB_URL=postgresql+asyncpg://postgres:postgres@db:5432/brwtrackerdb
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
