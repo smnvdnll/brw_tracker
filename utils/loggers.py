@@ -6,7 +6,7 @@ import asyncio
 
 
 logger.add(
-    sink="logs.log",
+    sink="logs/logs.log",
     level="DEBUG",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {function}:{line} - {exception} {message}",
     rotation="1 week"
