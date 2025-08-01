@@ -1,16 +1,14 @@
-from sys import exc_info
-from typing import Dict
+import json
 import aiohttp
 import backoff
 
 from utils.decorators import log_execution_time
-from utils.exceptions import TrainNotFoundException
+from utils.exceptions import InvalidResponseException
 from utils.loggers import logger
 
 class HTTPClient:
-    def __init__(self):
+    def __init__(self, ):
         self.session: aiohttp.ClientSession = None
-        self.base_url: str = None
         self.init_session()
 
     def init_session(self) -> None:
@@ -22,24 +20,25 @@ class HTTPClient:
             await self.session.close()
             self.session = None
 
-    # TODO сюда backoff добавить, тестить логгер, тестить обработку исключений
-    # @backoff.on_exception(
-    #     backoff.expo,
-    #     (),
-    #     jitter=backoff.full_jitter,
-    # )
+    ### json.JSONDecodeError возникает только если schedule['e'] из-за неверной даты 
+    # TODO придумать другую задержку
+    @backoff.on_exception(
+        backoff.expo,
+        (json.JSONDecodeError, aiohttp.ClientError, InvalidResponseException),
+        on_backoff=lambda details: logger.error(
+            f"Error while sending request, retrying. Try: {details['tries']}, waiting: {details['wait']}, exception: {details['exception']}"
+        ),
+    )
     @log_execution_time
-    async def get_json_response(self, url: str, *args, **kwargs) -> Dict[str, str]:
-        try:
-            logger.info(f"sending request for url {url}...")
-            async with self.session.get(url, *args, **kwargs) as response:
-                if response.status == 200:
-                    return await response.json()
-        except Exception as e:
-            logger.error(f"Failed to get response from {url}: {e}", exc_info=True)
-            return None
+    async def get_json_response(self, url: str, *args, **kwargs) -> dict[str, str]:
+        async with self.session.get(url, *args, **kwargs) as response:
+            if response.status == 200:
+                return await response.json()
+            else:
+                logger.error(f"Error while getting response: {response.status}")
+                raise InvalidResponseException()
 
-    async def post_json_response(self, url: str, *args, **kwargs) -> Dict[str, str]:
+    async def post_json_response(self, url: str, *args, **kwargs) -> dict[str, str]:
         async with self.session.post(url, *args, **kwargs) as response:
             if response.status == 200:
                 return await response.json()
