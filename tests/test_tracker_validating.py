@@ -23,10 +23,10 @@ def test_valid_date(mocker):
             return cls(2025, 8, 20, tzinfo=tz)
 
     mocker.patch("src.brw.validator.datetime", FrozenDatetime)
-    assert RouteValidator.is_date_valid("20.08.2025") == True
-    assert RouteValidator.is_date_valid("14.10.2025") == True # + 55 days
-    assert RouteValidator.is_date_valid("15.10.2025") == False # + 56 days
-    assert RouteValidator.is_date_valid("19.08.2025") == False # < today
+    assert RouteValidator.is_date_valid("20.08.2025")
+    assert RouteValidator.is_date_valid("14.10.2025") # + 55 days
+    assert not RouteValidator.is_date_valid("15.10.2025") # + 56 days
+    assert not RouteValidator.is_date_valid("19.08.2025") # < today
 
 def test_validate_tracker(mocker):
     mocker.patch("src.brw.stations.load_stations", return_value={"Минск": "2100000", "Брест": "2100150"})
