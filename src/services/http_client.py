@@ -23,9 +23,9 @@ def log_execution_time(func):
 
 
 class HttpClient:
-    def __init__(self):
+    def __init__(self, total_timeout: int = 5):
         timeout = aiohttp.ClientTimeout(
-            total=5 # no point in waiting longer, cause server may take up 60s to respond
+            total=total_timeout # no point in waiting longer, cause server may take up 60s to respond
         )
         self.session = aiohttp.ClientSession(timeout=timeout)
 
@@ -41,7 +41,7 @@ class HttpClient:
                 html = await response.text()
             return str(html)
         except asyncio.TimeoutError:
-            logger.error(f"Request timed out")
+            logger.error("Request timed out")
             raise
         except Exception as e:
             logger.error(f"Error occurred while making GET request: {e}")
