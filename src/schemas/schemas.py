@@ -42,11 +42,14 @@ class TrainSchema(BaseModel):
     def local_to_utc(cls, time: str) -> datetime:
         local_dt = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
         local_dt = local_dt.replace(tzinfo=ZoneInfo("Europe/Minsk"))
-        utc = local_dt.astimezone(timezone.utc)
-        return utc
+        utc_dt = local_dt.astimezone(timezone.utc)
+        return utc_dt
 
     def __str__(self) -> str:
-        return f"{self.from_} -> {self.to}, {self.type} ({self.number}, {self.dep_time})"
+        utc_dt = self.dep_time.replace(tzinfo=timezone.utc)
+        local_dt = utc_dt.astimezone(ZoneInfo("Europe/Minsk"))
+        local_str = datetime.strftime(local_dt, "%d.%m.%Y %H:%M:%S")
+        return f"{self.from_} -> {self.to}, {self.type} ({self.number}, {local_str})"
 
     # TODO add type field validation
 
@@ -55,4 +58,3 @@ class RouteSchema(BaseModel):
     from_: str = Field(validation_alias=AliasPath("from", "st_name_ru"))
     to: str = Field(validation_alias=AliasPath("to", "st_name_ru"))
     trains: list[TrainSchema] = Field(alias="routes")
-
