@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from ..utils.setup_logger import logger
+from src.infrastructure.setup_logger import logger
 from .exceptions import InvalidDate, StationNotFound
 from .stations import get_station_code
 

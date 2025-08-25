@@ -4,7 +4,7 @@ from functools import wraps
 
 import aiohttp
 
-from ..utils.setup_logger import logger
+from .setup_logger import logger
 
 
 def log_execution_time(func):

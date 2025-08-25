@@ -4,12 +4,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     BRW_BASE_URL: str = "https://apicast.rw.by/v1/"
     BRW_USER_KEY: str = "c11f8d06e3e1594815b9c4ebaddf19a0" # key for app identification
-    API_HEADERS: dict[str, str] = {
-        "Accept-Encoding": "gzip",
-        "Connection": "Keep-Alive",
-        "Host": "apicast.rw.by",
-        "User-Agent": "okhttp/4.9.1",
-    }
     BOT_TOKEN: str
 
     DB_HOST: str

@@ -1,4 +1,4 @@
-from ..config import settings
+from src.settings import settings
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession, 

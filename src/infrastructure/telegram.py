@@ -1,6 +1,6 @@
 import aiohttp
 
-from src.config import settings
+from src.settings import settings
 from .setup_logger import logger
 
 class TelegramNotifier():

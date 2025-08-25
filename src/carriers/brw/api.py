@@ -1,10 +1,10 @@
 from typing import Any
 
 from .exceptions import UnexpectedError
-from ..utils.setup_logger import logger
-from ..config import settings
-from ..services.http_client import HttpClient
-from ..schemas.schemas import RouteSchema
+from src.infrastructure.setup_logger import logger
+from src.settings import settings
+from src.infrastructure.http_client import HttpClient
+from .schemas.schemas import RouteSchema
 from .stations import get_station_code
 
 
@@ -12,8 +12,13 @@ class BrwAPI:
     def __init__(self, http_client: HttpClient):
         self.base_url = settings.BRW_BASE_URL
         self.http_client = http_client
-        self.headers = settings.API_HEADERS
         self.user_key = settings.BRW_USER_KEY
+        self.headers: dict[str, str] = {
+            "Accept-Encoding": "gzip",
+            "Connection": "Keep-Alive",
+            "Host": "apicast.rw.by",
+            "User-Agent": "okhttp/4.9.1",
+        }
 
     def _build_url(self, from_: str, to: str, date_iso: str) -> str:
         endpoint = "rasp/ru/index/route?"

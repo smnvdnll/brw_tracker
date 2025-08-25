@@ -1,12 +1,12 @@
 import asyncio
 from datetime import datetime, timezone
 
-from ..config import settings
-from ..utils.setup_logger import logger
-from ..brw.api import BrwAPI
-from ..schemas.schemas import TrainSchema
-from ..utils.telegram import TelegramNotifier
-from ..schemas.dto import TrackerQuery
+from src.settings import settings
+from src.infrastructure.setup_logger import logger
+from src.infrastructure.telegram import TelegramNotifier
+from .api import BrwAPI
+from .schemas.schemas import TrainSchema
+from .schemas.dto import TrackerQuery
 
 
 class BrwTracker:
@@ -20,7 +20,6 @@ class BrwTracker:
         self.query: TrackerQuery = query
         self.tg_notifier: TelegramNotifier = tg_notifier
         self.api: BrwAPI = brw_api
-        self.user_id: int = user_id
 
         self.prev_train: TrainSchema | None = None
         self.dep_time: datetime | None = None
@@ -88,7 +87,7 @@ class BrwTracker:
                     message = (
                         f"Изменения в расписании поезда {self.prev_train}:\n{diff}"
                     )
-                    logger.trace(f"Sending message to Telegram")
+                    logger.trace("Sending message to Telegram")
                     await self.tg_notifier.send_message(message)
                     logger.trace("Sent Telegram message")
                 self.prev_train = curr
