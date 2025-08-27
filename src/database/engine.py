@@ -1,4 +1,5 @@
 from src.settings import settings
+from .models import Base
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession, 
@@ -7,7 +8,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 engine = create_async_engine(
-    url=settings.db_uri,
+    url=settings.db_uri
 )
 
 sessionmaker = async_sessionmaker(
@@ -16,3 +17,7 @@ sessionmaker = async_sessionmaker(
     expire_on_commit=False,
     # autoflush=True
 )
+
+async def create_all():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
