@@ -1,5 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
 
+env_path = Path(__file__).parent.parent / ".env"
 
 class Settings(BaseSettings):
     BRW_BASE_URL: str = "https://apicast.rw.by/v1/"
@@ -7,7 +9,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
 
     DB_HOST: str
-    DB_PORT: int
+    DB_PORT: str
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
@@ -21,7 +23,7 @@ class Settings(BaseSettings):
         from random import uniform
         return 10.0 + uniform(0.0, 0.5)
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=env_path)
 
 settings = Settings() # pyright: ignore[reportCallIssue]
 __all__ = ["settings"]
