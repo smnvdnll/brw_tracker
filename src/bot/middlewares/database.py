@@ -4,11 +4,10 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from ...database.repository import BrwTrackerRepository, UserRepository
+from src.database.repository import BrwTrackerRepository, UserRepository
 
 
-
-class DBSession(BaseMiddleware):
+class DatabaseMiddleware(BaseMiddleware):
     def __init__(self, session_pool: async_sessionmaker):
         self.session_pool = session_pool
 
@@ -21,6 +20,6 @@ class DBSession(BaseMiddleware):
         async with self.session_pool() as session:
             users = UserRepository(session)
             trackers = BrwTrackerRepository(session)
-            data['users_repo'] = users
-            data['trackers_repo'] = trackers
+            data['users'] = users
+            data['trackers'] = trackers
             return await handler(event, data)
