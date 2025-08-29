@@ -1,7 +1,8 @@
 from typing import Any, Callable, Dict, Awaitable
 
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, TelegramObject
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.database.repository import BrwTrackerRepository, UserRepository
@@ -20,6 +21,20 @@ class DatabaseMiddleware(BaseMiddleware):
         async with self.session_pool() as session:
             users = UserRepository(session)
             trackers = BrwTrackerRepository(session)
-            data['users'] = users
-            data['trackers'] = trackers
+            data['users_repo'] = users
+            data['trackers_repo'] = trackers
             return await handler(event, data)
+
+
+class CallbackLoggerMiddleware(BaseMiddleware):
+    async def __call__(
+        self,
+        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: TelegramObject,
+        data: Dict[str, Any],
+    ) -> Any:
+        if isinstance(event, CallbackQuery):
+            state = data.get("state")
+            if state and isinstance(state, FSMContext):
+                await state.update_data(prev_call=event)
+        return await handler(event, data)
