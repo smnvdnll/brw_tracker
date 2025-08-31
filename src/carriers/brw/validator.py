@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 
 from src.infrastructure.setup_logger import logger
 from .exceptions import InvalidDate, StationNotFound
 from .stations import get_station_code
+from .schemas.dto import TrackerQueryDraft
 
 
 class RouteValidator:
@@ -14,26 +15,21 @@ class RouteValidator:
         return station_uic is not None
 
     @staticmethod
-    def is_date_valid(date_ru: str) -> bool:
-        logger.trace("Validating tracker's date")
-        try:
-            parsed_date = datetime.strptime(date_ru, "%d.%m.%Y")
-        except ValueError:
-            return False
-        
-        now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        if parsed_date < now or parsed_date > now + timedelta(days=55):
+    def is_date_valid(date: date) -> bool:
+        logger.trace("Validating tracker's date")        
+        now = date.today()
+        if date < now or date > now + timedelta(days=55):
             return False
 
         return True
 
     @staticmethod
-    def validate_tracker(from_: str, to: str, date_ru: str) -> None:
+    def validate_tracker(query: TrackerQueryDraft) -> None:
         logger.trace("Validating tracker...")
-        if not RouteValidator.is_station_has_code(from_):
-            raise StationNotFound(name=from_)
-        if not RouteValidator.is_station_has_code(to):
-            raise StationNotFound(name=to)
-        if not RouteValidator.is_date_valid(date_ru):
+        if query.from_ is not None and not RouteValidator.is_station_has_code(query.from_):
+            raise StationNotFound(name=query.from_)
+        if query.to is not None and not RouteValidator.is_station_has_code(query.to):
+            raise StationNotFound(name=query.to)
+        if query.date_ is not None and not RouteValidator.is_date_valid(query.date_):
             raise InvalidDate()
         logger.trace("Tracker validation passed")

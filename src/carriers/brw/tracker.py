@@ -29,7 +29,7 @@ class BrwTracker:
         route = await self.api.get_route(
             from_=query.from_,
             to=query.to,
-            date_iso=self._ru_date_to_iso(query.date_ru)
+            date_iso=query.date_.isoformat()
         )
         logger.trace("Got train")
         return next((train for train in route.trains if train.number == query.train_number), None)
@@ -52,10 +52,6 @@ class BrwTracker:
             for (t, c) in sorted(set(pm) | set(cm))
             if pm.get((t,c),0) != cm.get((t,c),0)
         ) or "без изменений"
-
-    def _ru_date_to_iso(self, date_ru: str) -> str:
-        r = datetime.strptime(date_ru, "%d.%m.%Y").date().isoformat()
-        return r
 
     async def run(self) -> None:
         logger.trace("Starting tracker...")
