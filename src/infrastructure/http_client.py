@@ -46,3 +46,9 @@ class HttpClient:
         except Exception as e:
             logger.error(f"Error occurred while making GET request: {e}")
             raise
+
+    async def __aenter__(self) -> 'HttpClient':
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback) -> None:
+        await self.close_session()
