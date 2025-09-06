@@ -1,9 +1,12 @@
-from datetime import datetime
+from datetime import date
 import pytest
+
+from freezegun import freeze_time
 
 from src.carriers.brw.exceptions import InvalidDate, StationNotFound
 from src.carriers.brw.validator import RouteValidator
 from src.carriers.brw.stations import get_station_code
+from src.carriers.brw.schemas.dto import TrackerQueryDraft
 
 
 def test_existing_stations(mocker):
@@ -16,31 +19,27 @@ def test_non_existing_stations(mocker):
     assert RouteValidator.is_station_has_code("Хогвартс") is False
     assert get_station_code("Хогвартс") is None
 
+@freeze_time("2025-08-20")
 def test_valid_date(mocker):
-    class FrozenDatetime(datetime):
-        @classmethod
-        def now(cls, tz=None):
-            return cls(2025, 8, 20, tzinfo=tz)
+    assert RouteValidator.is_date_valid(date(2025, 8, 20)) 
+    assert RouteValidator.is_date_valid(date(2025, 10, 14)) # + 55 days
+    assert not RouteValidator.is_date_valid(date(2025, 10, 15)) # + 56 days
+    assert not RouteValidator.is_date_valid(date(2025, 8, 19)) # < today
 
-    mocker.patch("src.carriers.brw.validator.datetime", FrozenDatetime)
-    assert RouteValidator.is_date_valid("20.08.2025")
-    assert RouteValidator.is_date_valid("14.10.2025") # + 55 days
-    assert not RouteValidator.is_date_valid("15.10.2025") # + 56 days
-    assert not RouteValidator.is_date_valid("19.08.2025") # < today
-
+@freeze_time("2025-08-20")
 def test_validate_tracker(mocker):
     mocker.patch("src.carriers.brw.stations.load_stations", return_value={"Минск": "2100000", "Брест": "2100150"})
-    class FrozenDatetime(datetime):
+    class FrozenDate(date):
         @classmethod
-        def now(cls, tz=None):
-            return cls(2025, 8, 20, tzinfo=tz)
+        def today(cls):
+            return cls(2025, 8, 20)
 
-    mocker.patch("src.carriers.brw.validator.datetime", FrozenDatetime)
-    assert RouteValidator.validate_tracker("Минск", "Брест", "20.08.2025") is None
-    assert RouteValidator.validate_tracker("Брест", "Минск", "20.09.2025") is None
+    mocker.patch("datetime.date", FrozenDate)
+    assert RouteValidator.validate_tracker(TrackerQueryDraft(from_="Минск", to="Брест", date_=date(2025, 8, 20))) is None
+    assert RouteValidator.validate_tracker(TrackerQueryDraft(from_="Брест", to="Минск", date_=date(2025, 8, 20))) is None
     with pytest.raises(StationNotFound):
-        RouteValidator.validate_tracker("Хогвартс", "Брест", "20.08.2025")
+        RouteValidator.validate_tracker(TrackerQueryDraft(from_="Хогвартс", to="Брест", date_=date(2025, 8, 20)))
     with pytest.raises(InvalidDate):
-        RouteValidator.validate_tracker("Минск", "Брест", "15.10.2025")
+        RouteValidator.validate_tracker(TrackerQueryDraft(from_="Минск", to="Брест", date_=date(2025, 10, 15)))
     with pytest.raises(InvalidDate):
-        RouteValidator.validate_tracker("Минск", "Брест", "15.10.2024")
+        RouteValidator.validate_tracker(TrackerQueryDraft(from_="Минск", to="Брест", date_=date(2024, 10, 15)))
