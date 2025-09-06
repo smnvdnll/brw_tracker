@@ -1,20 +1,34 @@
 [project]
 name = "brw-tracker"
 version = "0.1.0"
-description = "Add your description here"
+description = "Telegram bot for tracking available seats on Belarusian Railway trains"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "aiogram>=3.21.0",
     "aiohttp>=3.12.15",
-    "asyncio>=3.4.3",
     "asyncpg>=0.30.0",
     "loguru>=0.7.3",
     "pydantic>=2.11.7",
     "pydantic-settings>=2.10.1",
+    "sqlalchemy>=2.0.42",
+]
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = [""]
+
+[dependency-groups]
+dev = [
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
     "pytest-mock>=3.14.1",
     "ruff>=0.12.8",
-    "sqlalchemy>=2.0.42",
+    "freezegun>=1.5.5",
 ]
+
+[project.scripts]
+brw-tracker-bot = "src.bot.bot:run_bot"
